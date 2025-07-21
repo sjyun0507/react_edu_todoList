@@ -2,7 +2,8 @@ import './App.css'
 import Header from "./component/Header.jsx";
 import TodoEditor from "./component/TodoEditor.jsx";
 import TodoList from "./component/TodoList.jsx";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useReducer, useRef, useState} from "react";
+import TestComp from "./component/TestComp.jsx";
 
 // const mockTodo = [
 //     {
@@ -24,37 +25,62 @@ import {useEffect, useRef, useState} from "react";
 //         createdDate: new Date().getTime(),
 //     }
 // ]
+function reducer(state, action) {
+    //상태 변환 코드
+    switch (action.type) {
+        case "CREATE":
+            return [action.newItem, ...state];
+        case "UPDATE":
+            return state.map((it) => {
+                return it.id === action.targetId
+                    ? {...it, isDone: !it.isDone}
+                    : it;
+            })
+        case "DELETE":
+            return state.filter((it) => it.id !== action.targetId)
+        default:
+            return state;
+    }
+}
 
 function App() {
-    const [todos, setTodos] = useState(
-        localStorage.getItem("todos") ? JSON.parse(localStorage.getItem("todos")) : []
-    );
+    // const [todos, setTodos] = useState(
+    //     localStorage.getItem("todos") ? JSON.parse(localStorage.getItem("todos")) : []
+    // );
 
-    const idRef = useRef(todos.length > 0 ? todos[0].id + 1 : 0 );
+    const [todos, dispatch] = useReducer(reducer, localStorage.getItem("todos")
+        ? JSON.parse(localStorage.getItem("todos"))
+        : []);
+
+    const idRef = useRef(todos.length > 0 ? todos[0].id + 1 : 0);
 
     const onCreate = (content) => {
-        const newTodo = {
-            id: idRef.current,
-            isDone: false,
-            content,
-            createdDate: new Date().getTime(),
-        }
-        setTodos([newTodo, ...todos]);
-        localStorage.setItem("todos", JSON.stringify(todos));
+        dispatch({
+            type: "CREATE",
+            newItem: {
+                id: idRef.current,
+                content,
+                isDone: false,
+                createdDate: new Date().getTime(),
+            }
+        })
         idRef.current += 1;
     }
 
     const onUpdate = (targetId) => {
-        setTodos(
-            todos.map(item => item.id === targetId ? {...item, isDone: !item.isDone} : item)
-        );
+        dispatch({
+            type: "UPDATE",
+            targetId
+        })
     }
 
     const onDelete = (targetId) => {
-        setTodos(
-            todos.filter(item => item.id !== targetId)
-        );
+        dispatch({
+            type: "DELETE",
+            targetId
+        })
     }
+
 
     useEffect(() => {
         localStorage.setItem("todos", JSON.stringify(todos));
