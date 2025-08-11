@@ -2,29 +2,8 @@ import './App.css'
 import Header from "./component/Header.jsx";
 import TodoEditor from "./component/TodoEditor.jsx";
 import TodoList from "./component/TodoList.jsx";
-import {useEffect, useReducer, useRef, useState} from "react";
-import TestComp from "./component/TestComp.jsx";
+import React, {useCallback, useEffect, useReducer, useRef, useState} from "react";
 
-// const mockTodo = [
-//     {
-//         id: 1,
-//         isDone: false,
-//         content: "React 공부하기",
-//         createdDate: new Date().getTime(),
-//     },
-//     {
-//         id: 2,
-//         isDone: false,
-//         content: "빨래 널기",
-//         createdDate: new Date().getTime(),
-//     },
-//     {
-//         id: 3,
-//         isDone: false,
-//         content: "노래 연습하기",
-//         createdDate: new Date().getTime(),
-//     }
-// ]
 function reducer(state, action) {
     //상태 변환 코드
     switch (action.type) {
@@ -42,6 +21,9 @@ function reducer(state, action) {
             return state;
     }
 }
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const TodoContext = React.createContext();
 
 function App() {
     // const [todos, setTodos] = useState(
@@ -67,30 +49,41 @@ function App() {
         idRef.current += 1;
     }
 
-    const onUpdate = (targetId) => {
+    const onUpdate = useCallback((targetId) => {
+        //useCallback : 함수가 불필요하게 매번 새로 만들어지는 것을 방지하기 위해 사용
         dispatch({
             type: "UPDATE",
             targetId
         })
-    }
+    }, [])
 
-    const onDelete = (targetId) => {
+    const onDelete = useCallback((targetId) => {
         dispatch({
             type: "DELETE",
             targetId
         })
-    }
+    }, [])
 
 
     useEffect(() => {
         localStorage.setItem("todos", JSON.stringify(todos));
     }, [todos]);
 
+    // return (
+    //     <div className="App">
+    //         <Header/>
+    //         <TodoEditor onCreate={onCreate}/>
+    //         <TodoList todos={todos} onUpdate={onUpdate} onDelete={onDelete}/>
+    //     </div>
+    // )
+
     return (
         <div className="App">
             <Header/>
-            <TodoEditor onCreate={onCreate}/>
-            <TodoList todos={todos} onUpdate={onUpdate} onDelete={onDelete}/>
+            <TodoContext.Provider value={{todos, onCreate, onUpdate, onDelete}}>
+                <TodoEditor/>
+                <TodoList/>
+            </TodoContext.Provider>
         </div>
     )
 }

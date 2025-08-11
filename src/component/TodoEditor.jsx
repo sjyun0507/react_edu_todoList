@@ -1,7 +1,10 @@
 import './TodoEditor.css'
-import {useRef, useState} from "react";
+import {useContext, useRef, useState} from "react";
+import {TodoContext} from "../App.jsx";
 
-const TodoEditor = ({onCreate}) => {
+const TodoEditor = () => {
+    const {onCreate} = useContext(TodoContext) //구조할당분해
+
     const [content, setContent] = useState('');
     const inputRef = useRef();
 

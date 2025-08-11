@@ -1,6 +1,10 @@
 import './TodoItem.css'
+import React, {useContext} from "react";
+import {TodoContext} from "../App.jsx";
 
-const TodoItem = ({id,content,isDone,createdDate, onUpdate,onDelete}) => {
+const TodoItem = ({id, content, isDone, createdDate}) => {
+    const {onUpdate, onDelete} = useContext(TodoContext);
+    console.log(`${id} TodoItem 업데이트`);
     const onRemove = () => {
         onDelete(id);
     }
@@ -22,4 +26,4 @@ const TodoItem = ({id,content,isDone,createdDate, onUpdate,onDelete}) => {
         </div>
     )
 }
-export default TodoItem;
+export default React.memo(TodoItem);
